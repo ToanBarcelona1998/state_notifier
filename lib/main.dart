@@ -1,132 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:provider/provider.dart';
-import 'package:state_notify/models/product.dart';
-import 'package:state_notify/providers/product_notifier.dart';
-import 'views/card_page.dart';
+import 'package:state_notify/state_notifier.dart';
+import 'package:state_notify/state_notifier_list.dart';
 
 void main() {
+  // runApp(MultiProvider(
+  //   providers: [
+  //     StateNotifierProvider<MyStateNotifier, Person>(
+  //       create: (_) {
+  //         return MyStateNotifier();
+  //       },
+  //     ),
+  //   ],
+  //   child: MyApp(),
+  // ));
   runApp(
     MultiProvider(
       providers: [
-        StateNotifierProvider<ProductNotifier, List<Product>>(
-            create: (_) => ProductNotifier())
+        StateNotifierProvider<ListCounterNotifier, ListCounter>(
+          create: (_) => ListCounterNotifier(),
+        )
       ],
-      child: MaterialApp(
-        home: ProductPage(),
-        debugShowCheckedModeBanner: false,
-      ),
+      child: HomeApp(),
     ),
   );
 }
 
-class ProductPage extends StatelessWidget {
+class HomeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    double heightAppBar = MediaQuery.of(context).padding.top + 56;
-    double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xffffa3a7), Color(0xfffd76ad)],
-          ),
-        ),
-        child: Stack(
+    return MaterialApp(
+      home: Scaffold(
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Positioned(
-              top: 0,
-              child: Container(
-                height: heightAppBar,
-                width: width,
-                child: appBar(context),
-              ),
+            Text(context.watch<ListCounter>().list.toString()),
+            RaisedButton(
+              onPressed: () {
+                context.read<ListCounterNotifier>().addCounter();
+              },
+              child: Text("Add"),
             ),
-            Container(
-              margin: EdgeInsets.only(top: heightAppBar),
-              height: double.infinity,
-              child: body(context),
+            RaisedButton(
+              onPressed: () {
+                context.read<ListCounterNotifier>().removeCounter();
+              },
+              child: Text("Delete"),
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget appBar(BuildContext context) {
-    return Container(
-      alignment: Alignment.bottomCenter,
-      padding: EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "Product".toUpperCase(),
-            style: TextStyle(
-                fontSize: 22,
-                color: Color(0xffffffff),
-                fontWeight: FontWeight.bold),
-          ),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => CardPage()));
-            },
-            child: Icon(
-              Icons.wallet_giftcard_sharp,
-              color: Color(0xffffffff),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+class MyApp extends StatelessWidget {
+  String name1;
+  int age1, id1;
 
-  Widget body(BuildContext context) {
-    context.read<ProductNotifier>().allProduct();
-    return Container(
-      child: ListView.builder(
-        padding: EdgeInsets.zero,
-        itemCount: context.watch<List<Product>>().length,
-        itemBuilder: (context, index) {
-          return Card(
-            color: Color(0xfff5f5f5),
-            child: Row(
-              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            physics: NeverScrollableScrollPhysics(),
+            child: Column(
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.blueGrey,
-                  child: Text(
-                    context.select((List<Product> list) => list[index].id.toString()),
-                    style: TextStyle(color: Colors.white),
-                  ),
+                TextField(
+                  onChanged: (id) {
+                    id1 = int.parse(id);
+                  },
                 ),
-                Expanded(
-                    flex: 1,
-                    child: Text(
-                      context.select((List<Product> list) => list[index].name.toString()),
-                      textAlign: TextAlign.center,
-                    )),
-                Expanded(
-                    flex: 1,
-                    child: Text(
-                      "${context.select((List<Product> list) => list[index].prince.toString())} VNĐ",
-                      textAlign: TextAlign.center,
-                    )),
-                InkWell(
-                    child: Icon(context.watch<Product>().isCard == false
-                        ? Icons.add_box_outlined
-                        :Icons.check),
-                    onTap: () {}
+                TextField(
+                  onChanged: (age) {
+                    age1 = int.parse(age);
+                  },
                 ),
+                TextField(
+                  onChanged: (name) {
+                    name1 = name;
+                  },
+                ),
+                RaisedButton(
+                  onPressed: () {
+                    context.read<MyStateNotifier>().person(id1, age1, name1);
+                  },
+                  child: Text("Update"),
+                ),
+                Text(
+                    "${context.watch<Person>().id} ${context.watch<Person>().age} ${context.watch<Person>().name}")
               ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }

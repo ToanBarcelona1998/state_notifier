@@ -1,19 +1,22 @@
 import 'package:state_notifier/state_notifier.dart';
 
-class MyState{
-  int count;
-  String name="";
-  MyState({this.count=100,this.name});
-}
-class MyStateNotifier extends StateNotifier<MyState>{
-  List<MyState> list=[];
-  MyStateNotifier() :super(MyState());
+class Person {
+  int id;
+  int age;
+  String name;
 
-  increment(){
-    list.add(MyState(count: state.count,name: state.name));
+  Person({this.id, this.age, this.name});
+}
+
+class MyStateNotifier extends StateNotifier<Person> {
+  MyStateNotifier() : super(Person());
+
+  person(int id,int age,String name){
+    state=Person(id: state.id=id,age: state.age=age,name: state.name=name);
   }
+
   @override
-  void set state(MyState value) {
+  void set state(Person value) {
     // TODO: implement state
     super.state = value;
   }
